@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -22,13 +23,19 @@ namespace sport_trip_api.FunctionApp
             _ballparkRepo = ballparkRepo;
         }
         
-        [FunctionName("Trip")]
+        [FunctionName("Park")]
         public async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
             return new OkObjectResult(await _ballparkRepo.GetBallparks());
         }
+        
+        [FunctionName("Trip")]
+        public async Task<IActionResult> CreateTrip(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "Trip/{name}")] HttpRequest req, ILogger log, string name)
+        {
+            return new OkObjectResult((await _ballparkRepo.ShortestPath(name)).ToString());
+        }
+
     }
 }
